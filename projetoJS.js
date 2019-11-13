@@ -61,6 +61,37 @@ function addPoint(event){
 	y = mouseY;
 }
 
+var pointsVisible = true;
+function showPoints(){
+	var points = document.getElementsByTagName("circle");
+	pointsVisible = !pointsVisible;
+	if(pointsVisible){
+		for (var i = points.length - 1; i >= 0; i--) {
+			points[i].setAttribute("fill", "black");
+		}
+	}else{
+		for (var i = points.length - 1; i >= 0; i--) {
+			points[i].setAttribute("fill", "white");
+		}
+	}
+}
+
+var linesVisible = true;
+function showLines(){
+	var lines = document.getElementsByTagName("line");
+	linesVisible = !linesVisible;
+	if(linesVisible){
+		for (var i = lines.length - 1; i >= 0; i--) {
+			lines[i].setAttribute("style", 'stroke : #000000; stroke-width : 2');
+		}
+	}else{
+		for (var i = lines.length - 1; i >= 0; i--) {
+			lines[i].removeAttribute("style");
+
+		}
+	}
+}
+
 function show(){
 	alert("funcionando");
 }
