@@ -7,16 +7,18 @@
 		</title>
 	</head>
 	<body background="0x000000" style="background-color:powderblue;">
-		<div align = "center" onclick="show()">
-			<canvas id = "mainCanvas" width = "950" height="500" onclick="show()" style="border:3px solid #000000; background-color: white;"></canvas>
+		<div id = "canvasPlace" align = "center" onclick = "addPoint(event)">
+			<svg id = "mainCanvas"  width = "950" height = "500" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style = "border:3px solid #000000; background-color: white;">
+
+			</svg>
 		</div>
 
 		<div align="center">
 			<!-- botoes pedidos -->
-			<button type = "button" style="margin: 10px ; padding-top: 5px ; padding-bottom: 5px"> Adicionar Curva </button>
-			<button type = "button" style="margin: 10px ; padding-top: 5px ; padding-bottom: 5px"> Remover Curva </button>
-			<button type = "button" style="margin: 10px ; padding-top: 5px ; padding-bottom: 5px"> Proxima Curva </button>
+			<button type = "button" style="margin: 10px ; padding-top: 5px ; padding-bottom: 5px" onclick = "addCurve()"> Adicionar Curva </button>
+			<button type = "button" style="margin: 10px ; padding-top: 5px ; padding-bottom: 5px" onclick = "deleteCurve()"> Remover Curva </button>
 			<button type = "button" style="margin: 10px ; padding-top: 5px ; padding-bottom: 5px"> Curva Anterior </button>
+			<button type = "button" style="margin: 10px ; padding-top: 5px ; padding-bottom: 5px"> Proxima Curva </button>
 		</div>
 
 		<div>
