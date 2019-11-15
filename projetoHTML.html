@@ -8,7 +8,7 @@
 	</head>
 	<body background="0x000000" style="background-color:powderblue;">
 		<div id = "canvasPlace" align = "center">
-			<svg id = "mainCanvas" onclick = "addPoint(event)" width = "950" height = "500" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style = "border:3px solid #000000; background-color: white;">
+			<svg id = "mainCanvas" onclick = "getOp(event)" width = "950" height = "500" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style = "border:3px solid #000000; background-color: white;">
 
 			</svg>
 		</div>
@@ -35,6 +35,14 @@
 				<input type="checkbox" id = "curveCB" name="Curvas" checked = "true">
 				<label for = "curvas"> Curvas </label>
 			</div>
+		</div>
+
+		<div>
+			<select id = "operation">
+				<option value = "add"> Adicionar </option>
+				<option value = "del"> Remover </option>
+				<option value = "edit"> Modificar </option>
+			</select>
 		</div>
 
 		<script type="text/javascript" src="projetoJS.js"></script>

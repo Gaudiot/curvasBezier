@@ -2,11 +2,14 @@ var mainCanvas = document.getElementById("mainCanvas");
 var pointCB = document.getElementById("pointCB");
 var lineCB = document.getElementById("lineCB");
 var curveCB = document.getElementById("curveCB");
+var operation = document.getElementById("operation");
 
 //informacoes sobre a curva
 var selCurve = 0;
 var qttCurves = 0;
 var beziers = new Array();
+
+
 
 //Objeto coordenada
 function coord(x, y){
@@ -14,45 +17,57 @@ function coord(x, y){
 	this.y = y;
 }
 
+
+
+//Funcao para escolher o modo de operacao
+function getOp(event){
+	var op = operation.options[operation.selectedIndex].value;
+	//alert("operation: " + op);
+	if(op == "add"){
+		addPoint(event);
+	}else if(op == "del"){
+		deletePoint(event);
+	}else if(op == "edit"){
+
+	}
+}
+
+
+
 //Funcao para adicionar curva
 function addCurve(){
 	qttCurves++;
 	unselectCurve();
 	selCurve = qttCurves-1;
 
+	operation.selectedIndex = 0;
+
 	beziers[qttCurves-1] = new Array();
 }
+
+
 
 function deleteCurve(){
 	if(qttCurves > 0){
 		qttCurves--;
 		//Removecao dos pontos e linhas da curva
-		let lineClass = "l" + selCurve;
-		var lines = document.getElementsByClassName(lineClass);
-		for (var i = lines.length - 1; i >= 0; i--) {
-			mainCanvas.removeChild(lines[i]);
-		}
-		let pointClass = "p" + selCurve;
-		var points = document.getElementsByClassName(pointClass);
-		for (var i = points.length - 1; i >= 0; i--) {
-			mainCanvas.removeChild(points[i]);
-		}
+		var lines = getLines();
+		for (var i = lines.length - 1; i >= 0; i--) mainCanvas.removeChild(lines[i]);
+		var points = getPoints();
+		for (var i = points.length - 1; i >= 0; i--) mainCanvas.removeChild(points[i]);
 
 		//Realocacao da ultima curva
 		lineClass = "l" + qttCurves;
 		let newLineClass = "l" + selCurve;
 		var lines = document.getElementsByClassName(lineClass);
-		for (var i = lines.length - 1; i >= 0; i--) {
-			lines[i].setAttribute("class", newLineClass);
-		}
-		pointClass = "p" + qttCurves;
+		for (var i = lines.length - 1; i >= 0; i--) lines[i].setAttribute("class", newLineClass);
+
+		let pointClass = "p" + qttCurves;
 		let newPointClass = "p" + selCurve;
 		var points = document.getElementsByClassName(pointClass);
-		for (var i = points.length - 1; i >= 0; i--) {
-			points[i].setAttribute("class", newPointClass)
-		}
+		for (var i = points.length - 1; i >= 0; i--) points[i].setAttribute("class", newPointClass);
 
-		beziers = beziers.slice(0, selCurve+1).concat(beziers.slice(selCurve + 1));
+		beziers[selCurve] = beziers[qttCurves];
 
 		selCurve = qttCurves-1;
 		selectCurve();
@@ -61,6 +76,8 @@ function deleteCurve(){
 		alert("Não há mais curvas para deletar.");
 	}
 }
+
+
 
 //Adiciona um ponto a tela
 function addPoint(event){
@@ -104,8 +121,62 @@ function addPoint(event){
 
 	//Adicionar novo ponto ao seu objeto bezier
 	beziers[selCurve][beziers[selCurve].length] = new coord(mouseX, mouseY);
-	//alert(beziers[selCurve].length);
 }
+
+
+
+//
+function deletePoint(event) {
+	var mouseX = event.offsetX;
+	var mouseY = event.offsetY;
+	let pointClass = "p" + selCurve;
+	var points = document.getElementsByClassName(pointClass);
+	//var points = getPoints();
+	var i;
+	for (i = 0; i < points.length; i++) {
+		var cx = points[i].getAttribute("cx");
+		var cy = points[i].getAttribute("cy");
+		var r = points[i].getAttribute("r");
+		if(cx-r <= mouseX && mouseX <= cx+r){
+			alert(i + "\n" + 
+			cx + " " + cy + " " + r + "\n" +
+			mouseX + " " + mouseY);
+			break;
+		}
+	}
+}
+
+
+
+//
+function editPoint(event) {
+	
+}
+
+
+
+//Funcao para ver se o mouse esta clicando em algum objeto
+function inRange(cx, cy, posX, posY){
+	if(cx-r <= mouseX){
+		if(mouseX <= cx+r){
+			if(true){
+				if(true){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+
+//Funcao para gerar a curva de bezier
+function makeCurve() {
+	
+}
+
+
 
 //Funcao para ir para a proxima curva
 function changeCurve(direction){
@@ -117,6 +188,8 @@ function changeCurve(direction){
 	}
 	selectCurve();
 }
+
+
 
 //Funcao para mostrar/esconder pontos de controle
 function showPoints(){
@@ -132,6 +205,7 @@ function showPoints(){
 		}
 	}
 }
+
 
 
 //Funcao para mostrar/esconder poligonais de controle
@@ -150,46 +224,65 @@ function showLines(){
 	}
 }
 
+
+
 //Funcao para mostrar qual a curva selecionada
 function selectCurve(){
 	//seleciona todos os pontos da curva atual e as torna verde
 	if(pointCB.checked){
-		let pointClass = "p" + selCurve;
-		var points = document.getElementsByClassName(pointClass);
+		var points = getPoints();
 		for (var i = points.length - 1; i >= 0; i--) {
 			points[i].setAttribute("fill", "green");
 		}
 	}
 	//seleciona todas as linhas da curva atual e as torna roxa
 	if(lineCB.checked){
-		let lineClass = "l" + selCurve;
-		var lines = document.getElementsByClassName(lineClass);
+		var lines = getLines();
 		for (var i = lines.length - 1; i >= 0; i--) {
 			lines[i].setAttribute("style", 'stroke : #a832a0 ; stroke-width : 2');
 		}
 	}
 }
 
+
+
 //Funcao para deselecionar a curva
 function unselectCurve(){
 	//seleciona todos os pontos da curva atual e as torna pretas
 	if(pointCB.checked){
-		let pointClass = "p" + selCurve;
-		var points = document.getElementsByClassName(pointClass);
+		var points = getPoints();
 		for (var i = points.length - 1; i >= 0; i--) {
 			points[i].setAttribute("fill", "black");
 		}
 	}
 	//seleciona todas as linhas da curva atual e as torna pretas
 	if(lineCB.checked){
-		let lineClass = "l" + selCurve;
-		var lines = document.getElementsByClassName(lineClass);
+		var lines = getLines();
 		for (var i = lines.length - 1; i >= 0; i--) {
 			lines[i].setAttribute("style", 'stroke : #000000 ; stroke-width : 2');
 		}
 	}
 }
 
+
+
+//Funcao para pegar os pontos na curva selecionada
+function getPoints(){
+	let pointClass = "p" + selCurve;
+	return document.getElementsByClassName(pointClass);
+}
+
+
+
+//Funcao para pegar as linhas na curva selecionada
+function getLines(){
+	let lineClass = "l" + selCurve;
+	return document.getElementsByClassName(lineClass);
+}
+
+
+
+//Funcao de teste
 function show(){
 	alert("funcionando");
 }
