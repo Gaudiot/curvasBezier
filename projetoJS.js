@@ -134,13 +134,11 @@ function deletePoint(event) {
 	//var points = getPoints();
 	var i;
 	for (i = 0; i < points.length; i++) {
-		var cx = points[i].getAttribute("cx");
-		var cy = points[i].getAttribute("cy");
-		var r = points[i].getAttribute("r");
-		if(cx-r <= mouseX && mouseX <= cx+r){
-			alert(i + "\n" + 
-			cx + " " + cy + " " + r + "\n" +
-			mouseX + " " + mouseY);
+		var cx = parseInt(points[i].getAttribute("cx"));
+		var cy = parseInt(points[i].getAttribute("cy"));
+		var r = parseInt(points[i].getAttribute("r"));
+		if(cx-r <= mouseX && mouseX <= cx+r && cy-r <= mouseY && mouseY <= cy+r){
+			alert("achou! " + i);
 			break;
 		}
 	}
