@@ -29,7 +29,7 @@ function getOp(event){
 	}else if(op == "del"){
 		deletePoint(event);
 	}else if(op == "edit"){
-
+		editPoint(event);
 	}
 }
 
@@ -49,6 +49,7 @@ function addCurve(){
 
 
 
+//Funcao para deletar a curva
 function deleteCurve(){
 	if(qttCurves > 0){
 		qttCurves--;
@@ -86,7 +87,7 @@ function deleteCurve(){
 
 //Adiciona um ponto a tela
 function addPoint(event){
-	//Nao permite adicinoar pontos se nao houver linhas
+	//Nao permite adicionar pontos se nao houver linhas
 	if(qttCurves == 0){
 		alert("Crie uma curva para adicionar pontos.")
 		return;
@@ -120,8 +121,12 @@ function addPoint(event){
 
 //Funcao para deletar um ponto da que esta selecionada
 function deletePoint(event) {
-	var mouseX = event.offsetX;
-	var mouseY = event.offsetY;
+	//Nao permite remover pontos se nao houver linhas
+	if(qttCurves == 0){
+		alert("Crie uma curva para remover pontos.")
+		return;
+	}
+	var mouseX = event.offsetX, mouseY = event.offsetY;
 	//busca os pontos da curva atualmente selecionada
 	var points = getPoints();
 	var i;
@@ -131,7 +136,7 @@ function deletePoint(event) {
 	for (i = 0; i < points.length; i++) {
 		cx = parseInt(points[i].getAttribute("cx"));
 		cy = parseInt(points[i].getAttribute("cy"));
-		r = parseInt(points[i].getAttribute("r"));
+		r = 6;
 		if(inRange(cx, cy, r, mouseX, mouseY)){
 			//Remove o ponto selecionado do SVG e do array de pontos
 			mainCanvas.removeChild(points[i]);
@@ -160,9 +165,30 @@ function deletePoint(event) {
 
 
 
-//
+//Funcao para mudar posicao do ponto
 function editPoint(event) {
-	
+	//Nao permite editar pontos se nao houver linhas
+	if(qttCurves == 0){
+		alert("Crie uma curva para editar pontos.")
+		return;
+	}
+	var mouseX = event.offsetX, mouseY = event.offsetY;
+	//busca os pontos da curva atualmente selecionada
+	var points = getPoints();
+	var i;
+	var cx, cy, r;
+	var found = false;
+	for (i = 0; i < points.length && !found; i++) {
+		cx = parseInt(points[i].getAttribute("cx"));
+		cy = parseInt(points[i].getAttribute("cy"));
+		r = 6;
+		if(inRange(cx, cy, r, mouseX, mouseY)) found = true;;
+	}
+
+	if(found){
+		
+		show();
+	}
 }
 
 
@@ -203,11 +229,13 @@ function showPoints(){
 	//Busca todos os circulos do SVG
 	var points = document.getElementsByTagName("circle");
 	if(pointCB.checked){
+		//Torna todos os pontos pretos
 		for (var i = points.length - 1; i >= 0; i--) {
 			points[i].setAttribute("fill", "black");
 		}
 		selectCurve();
 	}else{
+		//Torna todos os pontos transparentes
 		for (var i = points.length - 1; i >= 0; i--) {
 			points[i].setAttribute("fill", "transparent");
 		}
@@ -221,11 +249,13 @@ function showLines(){
 	//Busca todas as linhas do SVG
 	var lines = document.getElementsByTagName("line");
 	if(lineCB.checked){
+		//Torna todas as linhas pretas
 		for (var i = lines.length - 1; i >= 0; i--) {
 			lines[i].setAttribute("style", 'stroke : #000000; stroke-width : 2');
 		}
 		selectCurve();
 	}else{
+		//Torna todas as linhas transparentes
 		for (var i = lines.length - 1; i >= 0; i--) {
 			lines[i].setAttribute("style", 'stroke : #00000000; stroke-width : 2');
 
