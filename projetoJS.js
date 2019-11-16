@@ -3,6 +3,7 @@ var pointCB = document.getElementById("pointCB");
 var lineCB = document.getElementById("lineCB");
 var curveCB = document.getElementById("curveCB");
 var operation = document.getElementById("operation");
+var web = "http://www.w3.org/2000/svg";
 
 //informacoes sobre a curva
 var selCurve = 0;
@@ -22,7 +23,7 @@ function coord(x, y){
 //Funcao para escolher o modo de operacao
 function getOp(event){
 	var op = operation.options[operation.selectedIndex].value;
-	//alert("operation: " + op);
+	//define qual operacao sera realizada na curva
 	if(op == "add"){
 		addPoint(event);
 	}else if(op == "del"){
@@ -40,6 +41,7 @@ function addCurve(){
 	unselectCurve();
 	selCurve = qttCurves-1;
 
+	//A operacao inicial para cada nova curva sera de adicionar pontos
 	operation.selectedIndex = 0;
 
 	beziers[qttCurves-1] = new Array();
@@ -57,18 +59,21 @@ function deleteCurve(){
 		for (var i = points.length - 1; i >= 0; i--) mainCanvas.removeChild(points[i]);
 
 		//Realocacao da ultima curva
+		//Renomeando as linhas
 		lineClass = "l" + qttCurves;
 		let newLineClass = "l" + selCurve;
 		var lines = document.getElementsByClassName(lineClass);
 		for (var i = lines.length - 1; i >= 0; i--) lines[i].setAttribute("class", newLineClass);
-
+		//Renomeando os pontos
 		let pointClass = "p" + qttCurves;
 		let newPointClass = "p" + selCurve;
 		var points = document.getElementsByClassName(pointClass);
 		for (var i = points.length - 1; i >= 0; i--) points[i].setAttribute("class", newPointClass);
 
+		//Ultima linha substitui a que foi retirada
 		beziers[selCurve] = beziers[qttCurves];
 
+		//Ultima linhas se torna a linha selecionada
 		selCurve = qttCurves-1;
 		selectCurve();
 
@@ -87,7 +92,6 @@ function addPoint(event){
 		return;
 	}
 
-	var web = "http://www.w3.org/2000/svg";
 	var mouseX = event.offsetX, mouseY = event.offsetY;
 	let pointClass = "p" + selCurve;
 
@@ -105,18 +109,7 @@ function addPoint(event){
 
 	//Criacao de linhas
 	if(beziers[selCurve].length > 0){
-		let color;
-		let lineClass = "l" + selCurve;
-		if(lineCB.checked) color = "#a832a0";
-		else color = "#00000000"
-		var l = document.createElementNS(web, "line");
-		l.setAttribute("x1", beziers[selCurve][beziers[selCurve].length-1].x);
-		l.setAttribute("y1", beziers[selCurve][beziers[selCurve].length-1].y);
-		l.setAttribute('x2', mouseX);
-		l.setAttribute('y2', mouseY);
-		l.setAttribute('style', 'stroke : ' + color + '; stroke-width : 2');
-		l.setAttribute("class", lineClass)
-		mainCanvas.appendChild(l);
+		makeLine(beziers[selCurve][beziers[selCurve].length-1].x, beziers[selCurve][beziers[selCurve].length-1].y, mouseX, mouseY);
 	}
 
 	//Adicionar novo ponto ao seu objeto bezier
@@ -125,21 +118,42 @@ function addPoint(event){
 
 
 
-//
+//Funcao para deletar um ponto da que esta selecionada
 function deletePoint(event) {
 	var mouseX = event.offsetX;
 	var mouseY = event.offsetY;
-	let pointClass = "p" + selCurve;
-	var points = document.getElementsByClassName(pointClass);
-	//var points = getPoints();
+	//busca os pontos da curva atualmente selecionada
+	var points = getPoints();
 	var i;
+	var cx, cy, r;
+	var found = false;
+	//busca o primeiro ponto que o mouse encontra
 	for (i = 0; i < points.length; i++) {
-		var cx = parseInt(points[i].getAttribute("cx"));
-		var cy = parseInt(points[i].getAttribute("cy"));
-		var r = parseInt(points[i].getAttribute("r"));
-		if(cx-r <= mouseX && mouseX <= cx+r && cy-r <= mouseY && mouseY <= cy+r){
-			alert("achou! " + i);
+		cx = parseInt(points[i].getAttribute("cx"));
+		cy = parseInt(points[i].getAttribute("cy"));
+		r = parseInt(points[i].getAttribute("r"));
+		if(inRange(cx, cy, r, mouseX, mouseY)){
+			//Remove o ponto selecionado do SVG e do array de pontos
+			mainCanvas.removeChild(points[i]);
+			beziers[selCurve].splice(i, 1);
+			found = true;
 			break;
+		}
+	}
+	//Se o ponto clicado for valido
+	if(found){
+		//Se nao for o ultimo ponto, tire a proxima linha
+		var lines = getLines();
+		var qtt = 0; //se a quantidade chegar a 2, achou todas as linhas que se conectam ao ponto
+		for (var j = lines.length - 1; j >= 0 && qtt < 2; j--) {
+			if((lines[j].getAttribute("x1") == cx && lines[j].getAttribute("y1") == cy) || (lines[j].getAttribute("x2") == cx && lines[j].getAttribute("y2") == cy)){
+				mainCanvas.removeChild(lines[j]);
+				qtt++;
+			}
+		}
+		//Se nao for nem o primeiro ponto e nem o ultimo, conecte o ponto antes e o proximo ponto
+		if(i > 0 && i < points.length){
+			makeLine(points[i-1].getAttribute("cx"), points[i-1].getAttribute("cy"), points[i].getAttribute("cx"), points[i].getAttribute("cy"));
 		}
 	}
 }
@@ -154,15 +168,10 @@ function editPoint(event) {
 
 
 //Funcao para ver se o mouse esta clicando em algum objeto
-function inRange(cx, cy, posX, posY){
-	if(cx-r <= mouseX){
-		if(mouseX <= cx+r){
-			if(true){
-				if(true){
-					return true;
-				}
-			}
-		}
+function inRange(cx, cy, r, mouseX, mouseY){
+	//verifica se o mouse esta dentro da area(quadrada) do circulo
+	if(cx-r <= mouseX && mouseX <= cx+r && cy-r <= mouseY && mouseY <= cy+r){
+		return true;
 	}
 	return false;
 }
@@ -191,6 +200,7 @@ function changeCurve(direction){
 
 //Funcao para mostrar/esconder pontos de controle
 function showPoints(){
+	//Busca todos os circulos do SVG
 	var points = document.getElementsByTagName("circle");
 	if(pointCB.checked){
 		for (var i = points.length - 1; i >= 0; i--) {
@@ -208,6 +218,7 @@ function showPoints(){
 
 //Funcao para mostrar/esconder poligonais de controle
 function showLines(){
+	//Busca todas as linhas do SVG
 	var lines = document.getElementsByTagName("line");
 	if(lineCB.checked){
 		for (var i = lines.length - 1; i >= 0; i--) {
@@ -260,6 +271,24 @@ function unselectCurve(){
 			lines[i].setAttribute("style", 'stroke : #000000 ; stroke-width : 2');
 		}
 	}
+}
+
+
+
+//Funcao para produzir uma linha de (x1, y1) ate (x2, y2)
+function makeLine(x1, y1, x2, y2){
+	let color;
+	let lineClass = "l" + selCurve;
+	if(lineCB.checked) color = "#a832a0";
+	else color = "#00000000";
+	var l = document.createElementNS(web, "line");
+	l.setAttribute("x1", x1);
+	l.setAttribute("y1", y1);
+	l.setAttribute('x2', x2);
+	l.setAttribute('y2', y2);
+	l.setAttribute('style', 'stroke : ' + color + '; stroke-width : 2');
+	l.setAttribute("class", lineClass);
+	mainCanvas.appendChild(l);
 }
 
 
