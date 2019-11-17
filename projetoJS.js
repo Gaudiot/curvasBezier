@@ -5,6 +5,8 @@ var curveCB = document.getElementById("curveCB");
 var operation = document.getElementById("operation");
 var web = "http://www.w3.org/2000/svg";
 
+var isEdit = false;
+
 //informacoes sobre a curva
 var selCurve = 0;
 var qttCurves = 0;
@@ -37,6 +39,10 @@ function getOp(event){
 
 //Funcao para adicionar curva
 function addCurve(){
+	if(isEdit){
+		alert("Termine a edicao antes de criar uma nova curva.");
+		return ;
+	} 
 	qttCurves++;
 	unselectCurve();
 	selCurve = qttCurves-1;
@@ -52,6 +58,10 @@ function addCurve(){
 //Funcao para deletar a curva
 function deleteCurve(){
 	if(qttCurves > 0){
+		if(isEdit){
+			alert("Termine a edicao antes de remover uma curva.");
+			return ;
+		} 
 		qttCurves--;
 		//Removecao dos pontos e linhas da curva
 		var lines = getLines();
@@ -165,29 +175,57 @@ function deletePoint(event) {
 
 
 
-//Funcao para mudar posicao do ponto
+//Funcao para detectar se pode haver mudanca na posicao do ponto
 function editPoint(event) {
 	//Nao permite editar pontos se nao houver linhas
 	if(qttCurves == 0){
 		alert("Crie uma curva para editar pontos.")
 		return;
-	}
-	var mouseX = event.offsetX, mouseY = event.offsetY;
-	//busca os pontos da curva atualmente selecionada
-	var points = getPoints();
-	var i;
-	var cx, cy, r;
-	var found = false;
-	for (i = 0; i < points.length && !found; i++) {
-		cx = parseInt(points[i].getAttribute("cx"));
-		cy = parseInt(points[i].getAttribute("cy"));
-		r = 6;
-		if(inRange(cx, cy, r, mouseX, mouseY)) found = true;;
-	}
+	}else if(!isEdit){
+		var mouseX = event.offsetX, mouseY = event.offsetY;
+		//busca os pontos da curva atualmente selecionada
+		var points = getPoints();
+		var i;
+		var cx, cy, r;
+		for (i = 0; i < points.length; i++) {
+			cx = parseInt(points[i].getAttribute("cx"));
+			cy = parseInt(points[i].getAttribute("cy"));
+			r = 6;
+			//Se tiver sido clicado em um ponto, mude para modo de alteracao de posicao
+			if(inRange(cx, cy, r, mouseX, mouseY)){
+				isEdit = true;
+				index = i;
+				break;
+			}
+		}
 
-	if(found){
-		
-		show();
+	}else if(isEdit){
+		//Quando houve um novo clique no modo de edicao, esse sera a nova posicao do ponto
+		isEdit = false;
+	}
+}
+
+
+
+//Funcao que movimenta o ponto pela tela
+var index;
+function movePoint(event){
+	if(isEdit){
+		var points = getPoints();
+		var lines = getLines();
+
+		var posX = event.offsetX, posY = event.offsetY;
+		points[index].setAttribute("cx", posX);
+		points[index].setAttribute("cy", posY);
+
+		if(index > 0){
+			lines[index-1].setAttribute("x2", posX);
+			lines[index-1].setAttribute("y2", posY);
+		}
+		if(index < points.length-1){
+			lines[index].setAttribute("x1", posX);
+			lines[index].setAttribute("y1", posY);
+		}
 	}
 }
 
@@ -213,6 +251,10 @@ function makeCurve() {
 
 //Funcao para ir para a proxima curva
 function changeCurve(direction){
+	if(isEdit){
+		alert("Termine a edicao antes de mudar de curva.");
+		return ;
+	} 
 	unselectCurve();
 	if(direction == 1){
 		selCurve = (selCurve+1)%qttCurves;
