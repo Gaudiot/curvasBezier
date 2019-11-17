@@ -170,6 +170,9 @@ function deletePoint(event) {
 		if(i > 0 && i < points.length){
 			makeLine(points[i-1].getAttribute("cx"), points[i-1].getAttribute("cy"), points[i].getAttribute("cx"), points[i].getAttribute("cy"));
 		}
+
+		//Fator de correcao para executar edicao de ponto sem problema
+		correction();
 	}
 }
 
@@ -225,6 +228,28 @@ function movePoint(event){
 		if(index < points.length-1){
 			lines[index].setAttribute("x1", posX);
 			lines[index].setAttribute("y1", posY);
+		}
+	}
+}
+
+
+
+//Funcao de correcao do delete para o edit
+function correction(){
+	var points = getPoints();
+	var lines = getLines();
+
+	for (var i = points.length - 1; i >= 0; i--) {
+		points[i].setAttribute("cx", points[i].getAttribute("cx"));
+		points[i].setAttribute("cy", points[i].getAttribute("cy"));
+
+		if(i > 0){
+			lines[i-1].setAttribute("x2", lines[i-1].getAttribute("x2"));
+			lines[i-1].setAttribute("y2", lines[i-1].getAttribute("y2"));
+		}
+		if(i < points.length-1){
+			lines[i].setAttribute("x1", lines[i].getAttribute("x1"));
+			lines[i].setAttribute("y1", lines.getAttribute("y1"));
 		}
 	}
 }
