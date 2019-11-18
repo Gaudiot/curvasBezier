@@ -50,6 +50,7 @@ function addCurve(){
 	unselectCurve();
 	selCurve = qttCurves-1;
 
+	//Inicia por padrao a curva com 3 avaliacoes
 	apb[qttCurves-1] = 3;
 
 	//A operacao inicial para cada nova curva sera de adicionar pontos
@@ -163,13 +164,15 @@ function deletePoint(event) {
 	}
 	//Se o ponto clicado for valido
 	if(found){
-		//Se nao for o ultimo ponto, tire a proxima linha
 		var lines = getLines();
 		if(i == 0){
+			//Se for o ponto inicial, retire somente a primeira linha
 			mainCanvas.removeChild(lines[i]);
 		}else if(i-1 == lines.length-1){
+			//Se for o ultimo ponto, retire somente a ultima linha
 			mainCanvas.removeChild(lines[lines.length-1]);
 		}else{
+			//Caso contrario, conecta a linha anterior ao final da linha posterior e remove a linha posterior
 			lines[i-1].setAttribute('x2', lines[i].getAttribute('x2'));
 			lines[i-1].setAttribute('y2', lines[i].getAttribute('y2'));
 			mainCanvas.removeChild(lines[i]);
@@ -260,7 +263,9 @@ function inRange(cx, cy, r, mouseX, mouseY){
 
 //Funcao para gerar a curva de bezier
 function makeBezier(qttAval) {
+	//qttAval = 0 não existe curva
 	if(qttAval == 0) return;
+	//Salva os pontos intermediarios
 	var midPoints = new Array();
 	var points = getPoints();
 	midPoints[0] = new coord(parseInt(points[0].getAttribute('cx')), parseInt(points[0].getAttribute('cy')));
@@ -268,6 +273,7 @@ function makeBezier(qttAval) {
 		midPoints[midPoints.length] = deCasteljau(points.length-1 , 0, i/qttAval);
 	}
 
+	//Cria as linhas da curva a partir dos pontos intermediarios
 	for(var i = 1 ; i < midPoints.length ; i++){
 		let color;
 		var bezierClass = "b" + selCurve;
@@ -307,6 +313,7 @@ function deCasteljau(i, j, u){
 //Funcao para remover a curva de bezier selecionada
 function deleteBezier(){
 	var curves = getBeziers();
+	//Enquanto existir linhas de curva, delete-as
 	while(curves.length > 0){
 		mainCanvas.removeChild(curves[0]);
 	}
