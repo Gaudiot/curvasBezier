@@ -118,13 +118,11 @@ function addPoint(event){
 	c.setAttribute("class", pointClass);
 	mainCanvas.appendChild(c);
 
+	var points = getPoints();
 	//Criacao de linhas
-	if(beziers[selCurve].length > 0){
-		makeLine(beziers[selCurve][beziers[selCurve].length-1].x, beziers[selCurve][beziers[selCurve].length-1].y, mouseX, mouseY);
+	if(points.length > 1){
+		makeLine(points[points.length-2].getAttribute('cx'), points[points.length-2].getAttribute('cy'), mouseX, mouseY);
 	}
-
-	//Adicionar novo ponto ao seu objeto bezier
-	beziers[selCurve][beziers[selCurve].length] = new coord(mouseX, mouseY);
 }
 
 
@@ -150,7 +148,6 @@ function deletePoint(event) {
 		if(inRange(cx, cy, r, mouseX, mouseY)){
 			//Remove o ponto selecionado do SVG e do array de pontos
 			mainCanvas.removeChild(points[i]);
-			beziers[selCurve].splice(i, 1);
 			found = true;
 			break;
 		}
@@ -170,9 +167,6 @@ function deletePoint(event) {
 		if(i > 0 && i < points.length){
 			makeLine(points[i-1].getAttribute("cx"), points[i-1].getAttribute("cy"), points[i].getAttribute("cx"), points[i].getAttribute("cy"));
 		}
-
-		//Fator de correcao para executar edicao de ponto sem problema
-		correction();
 	}
 }
 
@@ -221,35 +215,19 @@ function movePoint(event){
 		points[index].setAttribute("cx", posX);
 		points[index].setAttribute("cy", posY);
 
+		//Se nao for o ponto inicial, muda a linha da frente
 		if(index > 0){
+			lines[index-1].setAttribute('x1', points[index-1].getAttribute('cx'));
+			lines[index-1].setAttribute('y1', points[index-1].getAttribute('cy'));
 			lines[index-1].setAttribute("x2", posX);
 			lines[index-1].setAttribute("y2", posY);
 		}
+		//Se nao for o ultimo ponto, muda a linha de tras
 		if(index < points.length-1){
 			lines[index].setAttribute("x1", posX);
 			lines[index].setAttribute("y1", posY);
-		}
-	}
-}
-
-
-
-//Funcao de correcao do delete para o edit
-function correction(){
-	var points = getPoints();
-	var lines = getLines();
-
-	for (var i = points.length - 1; i >= 0; i--) {
-		points[i].setAttribute("cx", points[i].getAttribute("cx"));
-		points[i].setAttribute("cy", points[i].getAttribute("cy"));
-
-		if(i > 0){
-			lines[i-1].setAttribute("x2", lines[i-1].getAttribute("x2"));
-			lines[i-1].setAttribute("y2", lines[i-1].getAttribute("y2"));
-		}
-		if(i < points.length-1){
-			lines[i].setAttribute("x1", lines[i].getAttribute("x1"));
-			lines[i].setAttribute("y1", lines.getAttribute("y1"));
+			lines[index].setAttribute('x2', points[index+1].getAttribute('cx'));
+			lines[index].setAttribute('y2', points[index+1].getAttribute('cy'));
 		}
 	}
 }
@@ -313,19 +291,37 @@ function showPoints(){
 
 //Funcao para mostrar/esconder poligonais de controle
 function showLines(){
-	//Busca todas as linhas do SVG
-	var lines = document.getElementsByTagName("line");
-	if(lineCB.checked){
-		//Torna todas as linhas pretas
-		for (var i = lines.length - 1; i >= 0; i--) {
-			lines[i].setAttribute("style", 'stroke : #000000; stroke-width : 2');
+	//Para cada curva do SVG, irá iteiras sobre todas as poligonais de controle
+	for(var i = 0 ; i < qttCurves ; i++){
+		var lineClass = "l" + i;
+		var lines = document.getElementsByClassName(lineClass);
+		for(var j = 0 ; j < lines.length ; j++){
+			if(lineCB.checked){
+				//Torna todas as poligonais de controle pretas
+				lines[j].setAttribute("style", 'stroke : #000000; stroke-width : 2');
+				selectCurve();
+			}else{
+				//Torna todas as poligonais de controle transparentes
+				lines[j].setAttribute("style", 'stroke : #00000000; stroke-width : 2');
+			}
 		}
-		selectCurve();
-	}else{
-		//Torna todas as linhas transparentes
-		for (var i = lines.length - 1; i >= 0; i--) {
-			lines[i].setAttribute("style", 'stroke : #00000000; stroke-width : 2');
+	}
+}
 
+
+
+//Funcao para mostrar/esconder as curvas de bezier
+function showCurves(){
+	for(var i = 0 ; i < qttCurves ; i++){
+		var curveClass = "c" + i;
+		var curves = document.getElementsByClassName(curveClass);
+		for(var j = 0 ; j < curves.length ; j++){
+			if(curveCB.checked){
+				curves[j].setAttribute("style", 'stroke : #000000; stroke-width : 2');
+				selectCurve();
+			}else{
+				curves[j].setAttribute("style", 'stroke : #00000000; stroke-width : 2');
+			}
 		}
 	}
 }
