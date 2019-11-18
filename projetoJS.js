@@ -75,7 +75,7 @@ function deleteCurve(){
 
 		//Realocacao da ultima curva
 		//Renomeando as linhas
-		lineClass = "l" + qttCurves;
+		let lineClass = "l" + qttCurves;
 		let newLineClass = "l" + selCurve;
 		var lines = document.getElementsByClassName(lineClass);
 		for (var i = lines.length - 1; i >= 0; i--) lines[i].setAttribute("class", newLineClass);
@@ -84,6 +84,11 @@ function deleteCurve(){
 		let newPointClass = "p" + selCurve;
 		var points = document.getElementsByClassName(pointClass);
 		for (var i = points.length - 1; i >= 0; i--) points[i].setAttribute("class", newPointClass);
+		//Renomeando bezier
+		let bezierClass = "b" + qttCurves;
+		let newBezierClass = "b" + selCurve;
+		var beziers = getBeziers();
+		for (var i = beziers.length - 1; i >= 0; i--) beziers[i].setAttribute("class", newBezierClas);
 
 		//Ultima linhas se torna a linha selecionada
 		selCurve = qttCurves-1;
@@ -160,20 +165,18 @@ function deletePoint(event) {
 	if(found){
 		//Se nao for o ultimo ponto, tire a proxima linha
 		var lines = getLines();
-		var qtt = 0; //se a quantidade chegar a 2, achou todas as linhas que se conectam ao ponto
-		for (var j = lines.length - 1; j >= 0 && qtt < 2; j--) {
-			if((lines[j].getAttribute("x1") == cx && lines[j].getAttribute("y1") == cy) || (lines[j].getAttribute("x2") == cx && lines[j].getAttribute("y2") == cy)){
-				mainCanvas.removeChild(lines[j]);
-				qtt++;
-			}
-		}
-		//Se nao for nem o primeiro ponto e nem o ultimo, conecte o ponto antes e o proximo ponto
-		if(i > 0 && i < points.length){
-			makeLine(points[i-1].getAttribute("cx"), points[i-1].getAttribute("cy"), points[i].getAttribute("cx"), points[i].getAttribute("cy"));
+		if(i == 0){
+			mainCanvas.removeChild(lines[i]);
+		}else if(i-1 == lines.length-1){
+			mainCanvas.removeChild(lines[lines.length-1]);
+		}else{
+			lines[i-1].setAttribute('x2', lines[i].getAttribute('x2'));
+			lines[i-1].setAttribute('y2', lines[i].getAttribute('y2'));
+			mainCanvas.removeChild(lines[i]);
 		}
 
 		deleteBezier();
-		makeBezier(3);
+		makeBezier(apb[selCurve]);
 	}
 }
 
@@ -238,7 +241,7 @@ function movePoint(event){
 		}
 
 		deleteBezier();
-		makeBezier(3);
+		makeBezier(apb[selCurve]);
 	}
 }
 
@@ -286,12 +289,17 @@ function makeBezier(qttAval) {
 //Funcao para achar o ponto auxiliar
 function deCasteljau(i, j, u){
 	var points = getPoints();
-	if(i == 0) return (new coord(points[j].getAttribute('cx'), points[j].getAttribute('cy')));
-	var point;
-	var pointA = deCasteljau(i-1, j, u), pointB = deCasteljau(i-1, j+1, u);
-	point = new coord(parseInt(pointA.x*(1-u)) + parseInt(pointB.x*(u)), 
-					  parseInt(pointA.y*(1-u)) + parseInt(pointB.y*(u)));
-	return point;
+	var temp = new Array();
+	for(var i = 0 ; i < points.length ; i++){
+		temp[i] = new coord(points[i].getAttribute('cx'), points[i].getAttribute('cy'));
+	}
+	for(var k = 1 ; k < points.length ; k++){
+		for(var i = 0 ; i < points.length-k ; i++){
+			temp[i].x = temp[i].x*(1-u) + temp[i+1].x*(u);
+			temp[i].y = temp[i].y*(1-u) + temp[i+1].y*(u);
+		}
+	}
+	return temp[0];
 }
 
 
