@@ -3,6 +3,8 @@ var pointCB = document.getElementById("pointCB");
 var lineCB = document.getElementById("lineCB");
 var curveCB = document.getElementById("curveCB");
 var operation = document.getElementById("operation");
+var qttAval = document.getElementById("qttAval");
+var butChange = document.getElementById("butChange");
 var web = "http://www.w3.org/2000/svg";
 
 var isEdit = false;
@@ -10,6 +12,8 @@ var isEdit = false;
 //informacoes sobre a curva
 var selCurve = 0;
 var qttCurves = 0;
+//avaliacoes por bezier
+var apb = new Array();
 
 
 
@@ -46,6 +50,8 @@ function addCurve(){
 	unselectCurve();
 	selCurve = qttCurves-1;
 
+	apb[qttCurves-1] = 3;
+
 	//A operacao inicial para cada nova curva sera de adicionar pontos
 	operation.selectedIndex = 0;
 }
@@ -65,6 +71,7 @@ function deleteCurve(){
 		for (var i = lines.length - 1; i >= 0; i--) mainCanvas.removeChild(lines[i]);
 		var points = getPoints();
 		for (var i = points.length - 1; i >= 0; i--) mainCanvas.removeChild(points[i]);
+		deleteBezier();
 
 		//Realocacao da ultima curva
 		//Renomeando as linhas
@@ -119,7 +126,7 @@ function addPoint(event){
 	}
 
 	deleteBezier();
-	makeBezier(3);
+	makeBezier(apb[selCurve]);
 }
 
 
@@ -294,6 +301,22 @@ function deleteBezier(){
 	var curves = getBeziers();
 	while(curves.length > 0){
 		mainCanvas.removeChild(curves[0]);
+	}
+}
+
+
+
+//Funcao para alterar a quantidade de avaliacoes na curva
+function changeQttAval(){
+	var newNumb = qttAval.value;
+	qttAval.value = 0;
+	if(isNaN(newNumb)){
+		alert("Insira apenas números.");
+	}else{
+		newNumb = parseInt(newNumb);
+		deleteBezier();
+		makeBezier(newNumb);
+		apb[selCurve] = newNumb;
 	}
 }
 
