@@ -10,7 +10,6 @@ var isEdit = false;
 //informacoes sobre a curva
 var selCurve = 0;
 var qttCurves = 0;
-var beziers = new Array();
 
 
 
@@ -49,8 +48,6 @@ function addCurve(){
 
 	//A operacao inicial para cada nova curva sera de adicionar pontos
 	operation.selectedIndex = 0;
-
-	beziers[qttCurves-1] = new Array();
 }
 
 
@@ -80,9 +77,6 @@ function deleteCurve(){
 		let newPointClass = "p" + selCurve;
 		var points = document.getElementsByClassName(pointClass);
 		for (var i = points.length - 1; i >= 0; i--) points[i].setAttribute("class", newPointClass);
-
-		//Ultima linha substitui a que foi retirada
-		beziers[selCurve] = beziers[qttCurves];
 
 		//Ultima linhas se torna a linha selecionada
 		selCurve = qttCurves-1;
@@ -123,6 +117,9 @@ function addPoint(event){
 	if(points.length > 1){
 		makeLine(points[points.length-2].getAttribute('cx'), points[points.length-2].getAttribute('cy'), mouseX, mouseY);
 	}
+
+	deleteBezier();
+	makeBezier(3);
 }
 
 
@@ -167,6 +164,9 @@ function deletePoint(event) {
 		if(i > 0 && i < points.length){
 			makeLine(points[i-1].getAttribute("cx"), points[i-1].getAttribute("cy"), points[i].getAttribute("cx"), points[i].getAttribute("cy"));
 		}
+
+		deleteBezier();
+		makeBezier(3);
 	}
 }
 
@@ -229,6 +229,9 @@ function movePoint(event){
 			lines[index].setAttribute('x2', points[index+1].getAttribute('cx'));
 			lines[index].setAttribute('y2', points[index+1].getAttribute('cy'));
 		}
+
+		deleteBezier();
+		makeBezier(3);
 	}
 }
 
@@ -246,8 +249,52 @@ function inRange(cx, cy, r, mouseX, mouseY){
 
 
 //Funcao para gerar a curva de bezier
-function makeCurve() {
-	
+function makeBezier(qttAval) {
+	if(qttAval == 0) return;
+	var midPoints = new Array();
+	var points = getPoints();
+	midPoints[0] = new coord(parseInt(points[0].getAttribute('cx')), parseInt(points[0].getAttribute('cy')));
+	for(var i = 1 ; i <= qttAval ; i++){
+		midPoints[midPoints.length] = deCasteljau(points.length-1 , 0, i/qttAval);
+	}
+
+	for(var i = 1 ; i < midPoints.length ; i++){
+		let color;
+		var bezierClass = "b" + selCurve;
+		if(curveCB.checked) color = "#fcba03";
+		else color = "#00000000";
+		var l = document.createElementNS(web, "line");
+		l.setAttribute('x1', parseInt(midPoints[i-1].x));
+		l.setAttribute('y1', parseInt(midPoints[i-1].y));
+		l.setAttribute('x2', parseInt(midPoints[i].x));
+		l.setAttribute('y2', parseInt(midPoints[i].y));
+		l.setAttribute('style', 'stroke : ' + color + '; stroke-width : 2');
+		l.setAttribute("class", bezierClass);
+		mainCanvas.appendChild(l);
+	}
+}
+
+
+
+//Funcao para achar o ponto auxiliar
+function deCasteljau(i, j, u){
+	var points = getPoints();
+	if(i == 0) return (new coord(points[j].getAttribute('cx'), points[j].getAttribute('cy')));
+	var point;
+	var pointA = deCasteljau(i-1, j, u), pointB = deCasteljau(i-1, j+1, u);
+	point = new coord(parseInt(pointA.x*(1-u)) + parseInt(pointB.x*(u)), 
+					  parseInt(pointA.y*(1-u)) + parseInt(pointB.y*(u)));
+	return point;
+}
+
+
+
+//Funcao para remover a curva de bezier selecionada
+function deleteBezier(){
+	var curves = getBeziers();
+	while(curves.length > 0){
+		mainCanvas.removeChild(curves[0]);
+	}
 }
 
 
@@ -313,7 +360,7 @@ function showLines(){
 //Funcao para mostrar/esconder as curvas de bezier
 function showCurves(){
 	for(var i = 0 ; i < qttCurves ; i++){
-		var curveClass = "c" + i;
+		var curveClass = "b" + i;
 		var curves = document.getElementsByClassName(curveClass);
 		for(var j = 0 ; j < curves.length ; j++){
 			if(curveCB.checked){
@@ -344,6 +391,12 @@ function selectCurve(){
 			lines[i].setAttribute("style", 'stroke : #a832a0 ; stroke-width : 2');
 		}
 	}
+	if(curveCB.checked){
+		var bezier = getBeziers();
+		for (var i = bezier.length - 1; i >= 0; i--) {
+			bezier[i].setAttribute("style", 'stroke : #fcba03 ; stroke-width : 2');
+		}
+	}
 }
 
 
@@ -362,6 +415,12 @@ function unselectCurve(){
 		var lines = getLines();
 		for (var i = lines.length - 1; i >= 0; i--) {
 			lines[i].setAttribute("style", 'stroke : #000000 ; stroke-width : 2');
+		}
+	}
+	if(curveCB.checked){
+		var bezier = getBeziers();
+		for (var i = bezier.length - 1; i >= 0; i--) {
+			bezier[i].setAttribute("style", 'stroke : #000000 ; stroke-width : 2');
 		}
 	}
 }
@@ -398,6 +457,14 @@ function getPoints(){
 function getLines(){
 	let lineClass = "l" + selCurve;
 	return document.getElementsByClassName(lineClass);
+}
+
+
+
+//Funcao para pegar todos os beziers ne curva selecionada
+function getBeziers(){
+	let bezierClass = "b" + selCurve;
+	return document.getElementsByClassName(bezierClass);
 }
 
 
