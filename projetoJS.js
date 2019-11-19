@@ -52,6 +52,7 @@ function addCurve(){
 
 	//Inicia por padrao a curva com 3 avaliacoes
 	apb[qttCurves-1] = 3;
+	qttAval.value = 3;
 
 	//A operacao inicial para cada nova curva sera de adicionar pontos
 	operation.selectedIndex = 0;
@@ -324,9 +325,10 @@ function deleteBezier(){
 //Funcao para alterar a quantidade de avaliacoes na curva
 function changeQttAval(){
 	var newNumb = qttAval.value;
-	qttAval.value = 0;
+	qttAval.value = newNumb;
 	if(isNaN(newNumb)){
 		alert("Insira apenas números.");
+		qttAval.value = newNumb;
 	}else{
 		newNumb = parseInt(newNumb);
 		deleteBezier();
@@ -349,6 +351,7 @@ function changeCurve(direction){
 	}else if(direction == -1){
 		selCurve = (selCurve + qttCurves - 1)%qttCurves;
 	}
+	qttAval.value = apb[selCurve];
 	selectCurve();
 }
 
