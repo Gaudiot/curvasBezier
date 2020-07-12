@@ -1,29 +1,30 @@
-# Curvas Bezier
-Projeto da disciplina Processamento Gráfico(IF680)
+# Bézier Curves
+Project to the Graphic Processing discipline(IF680)
 
-## Funcionamento
-O projeto consiste da construção de curvas de bezier a partir de seus pontos de controle.
-As curvas não selecionadas estarão na cor preta.
+## How it works
+The project consists on making [Bézier curves](https://en.wikipedia.org/wiki/B%C3%A9zier_curve), that is, smooth curves modeled from their control nodes.
+The non-selected curves will be on color black.
 
-## Ações possíveis
-#### Adicionar uma curva nova:
-Clique no botão "Adicionar Curva", automaticamente sera mudada para a opção de adicionar ponto de controle.
+## Possible Actions
+#### Add a new curve:
+Press the "Adicionar Curva" button, then click inside the canvas to position the control nodes of the new Bézier curve.
 
-#### Remover uma curva:
-Clique no botão "Remover Curva" para remover a curva atual.
+#### Delete a curve:
+Press the "Remover Curva" button to delete the selected curve.
 
-#### Andar pelas curvas:
-Clique em "Próxima Curva" ou "Curva Anterior" para mudar de curva.
+#### Change selected curve:
+Press the "Próxima Curva" or "Curva Anterior" button to change the selected curve.
 
-#### Adicionar ponto:
-Selecione a opção "Adicionar" no drop down menu, e clique na área branca para adicionar um novo ponto de controle ao final da curva.
+#### Add new control node:
+On the drop down menu select the "Adicionar" option, and click on the canvas to add a new control node to the end of the selected curve.
 
-#### Remover ponto:
-Selecione a opção "Remover" no drop down menu, e clique no ponto de controle que esteja na curva selecionada para removê-lo.
+#### Remove control node:
+On the drop down menu select the "Remover" option, and click on the control node of the selected curve that you wish to remove.
 
-#### Mover ponto:
-Selecione a opção "Modificar" no drop down menu, e clique no ponto que esteja na curva selecionada, se clicar dentro do alcance dela, ela será selecionada e poderá movê-la pela tela, clique novamente dentro da área em branco para selecionar a nova posição do ponto.
+#### Move control node:
+On the drop down menu select the "Modificar" option, and click on the control node of the selected curve that you wish to move. The node will be selected and wou shall be able to move it across the canvas. Inside the canvas, click again to set the control node new position.
 
-#### Número de avaliações por curva:
-Por padrão, uma curva terá o valor 3(três) como número de avaliações, isso poderá ser alterado na área de texto abaixo da drop down menu onde se pode inserir o número desejado para a quantidade de avaliações, quando inserido, aperte o botão "change Qtt Aval" para efetivamente realizar a alteração.
-Quanto maior o valor, mais bem definida será a curva, em contrapartida também ficará mais lento.(Obs.: 500 é um valor que usa o melhor dos dois mundos).
+#### Curve's evaluation number :
+By default, a curve will have 3(three) as its evaluation number. This can be changed at the text input area beneath the drop down menu, where you can insert the new quantity(as long as it is a integer number higher or equal to zero). When inserted, press the "change Qtt Aval" button to effect the desired change.
+
+The higher the value, smoother will be the curve, in contrast it will also become more laggy.(Obs.: 500 is  value which profits the best from both worlds).
